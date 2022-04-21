@@ -1,7 +1,7 @@
 import { ProblemDocument } from "http-problem-details"
 import { ErrorMapper } from "http-problem-details-mapper"
 
-import APITokenFormatError from "./APITokenFormatError.js"
+import APITokenFormatError from "../custom_errors/APITokenFormatError.js"
 
 export default class APITokenFormatErrorMapper extends ErrorMapper {
   constructor() {

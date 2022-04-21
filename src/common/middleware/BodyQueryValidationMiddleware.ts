@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import { ValidationError, validationResult } from "express-validator"
 
-import APITokenFormatError from "../APITokenFormatError.js"
+import APITokenFormatError from "../custom_errors/APITokenFormatError.js"
 import Logger from "../logger.js"
 
 class BodyQueryValidationMiddleware {

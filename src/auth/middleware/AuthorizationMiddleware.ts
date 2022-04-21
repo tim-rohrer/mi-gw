@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 
-import AuthorizationError from "../../common/AuthorizationError.js"
+import AuthorizationError from "../../common/custom_errors/AuthorizationError.js"
 import Logger from "../../common/logger.js"
 
 export class AuthorizationMiddleware {
