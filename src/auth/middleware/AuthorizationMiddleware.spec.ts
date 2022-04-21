@@ -1,7 +1,6 @@
 import { getMockReq, getMockRes } from "@jest-mock/express"
 
 import AuthorizationError from "../../common/custom_errors/AuthorizationError.js"
-import { HttpStatusCode } from "../../common/http-status-codes.js"
 import { AuthorizationMiddleware } from "./AuthorizationMiddleware.js"
 
 const { res, next, mockClear } = getMockRes()
