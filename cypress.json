@@ -1,0 +1,4 @@
+{
+  "pluginsFile": "cypress/plugins/index.cjs",
+  "baseUrl": "http://localhost:5000/api/v1"
+}
