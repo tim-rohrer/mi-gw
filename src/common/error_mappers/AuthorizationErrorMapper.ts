@@ -3,7 +3,7 @@ import { ErrorMapper } from "http-problem-details-mapper"
 
 import AuthorizationError from "../custom_errors/AuthorizationError.js"
 
-export default class APITokenFormatErrorMapper extends ErrorMapper {
+export default class AuthorizationErrorMapper extends ErrorMapper {
   constructor() {
     super(AuthorizationError)
   }
