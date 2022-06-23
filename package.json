@@ -71,7 +71,7 @@
     "http-problem-details-mapper": "^0.1.7",
     "morgan": "^1.10.0",
     "quicken-investment-parser": "file:../quicken-investment-parser",
-    "ts-results-es": "^3.4.0",
+    "ts-results-es": "^3.5.0",
     "winston": "^3.8.0"
   }
 }
