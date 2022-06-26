@@ -41,10 +41,12 @@ class BodyQueryValidationMiddleware {
     const errors = validationResult(req)
 
     if (!errors.isEmpty()) {
-      next(
+      Logger.debug(`verifyAPITokenFormat errors: ${JSON.stringify(errors)}`)
+      return next(
         new APITokenFormatError("Your request was missing a proper API Token."),
       )
     }
+    Logger.debug("verifyAPITokenFormat: No errors")
     next()
   }
 }

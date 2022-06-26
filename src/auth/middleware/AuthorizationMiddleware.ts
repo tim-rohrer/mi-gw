@@ -44,6 +44,9 @@ export class AuthorizationMiddleware {
         ),
       )
     }
+    Logger.info(
+      "AuthorizationMiddleware.isTokenAuthorized: Token is authorized",
+    )
     next()
   }
 }
