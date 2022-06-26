@@ -23,6 +23,7 @@
     "./**/*.spec.ts",
     "./dist/**/*",
     "jest.config.js",
+    "cypress.config.ts",
     "cypress/**/*"
   ]
 }
