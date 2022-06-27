@@ -36,6 +36,7 @@
     "@babel/preset-env": "^7.18.2",
     "@babel/preset-typescript": "^7.17.12",
     "@jest-mock/express": "^2.0.0",
+    "@shelf/jest-mongodb": "^3.0.1",
     "@tsconfig/node16": "^1.0.3",
     "@types/cookie-parser": "^1.4.3",
     "@types/cors": "^2.8.12",
