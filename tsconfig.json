@@ -16,7 +16,8 @@
     "allowSyntheticDefaultImports": true,
     "strict": false,
     "esModuleInterop": false,
-    "allowJs": true
+    "allowJs": true,
+    "useUnknownInCatchVariables": true
   },
   "exclude": [
     "node_modules",
@@ -24,6 +25,6 @@
     "./dist/**/*",
     "jest.config.js",
     "cypress.config.ts",
-    "cypress/**/*"
+    "cypress/**/*",
   ]
 }
