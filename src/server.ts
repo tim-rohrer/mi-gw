@@ -16,6 +16,7 @@ import morgan from "morgan"
 
 import APITokenFormatErrorMapper from "./common/error_mappers/APITokenFormatErrorMapper.js"
 import AuthorizationErrorMapper from "./common/error_mappers/AuthorizationErrorMapper.js"
+import DbOperationErrorMapper from "./common/error_mappers/DbOperationErrorMapper.js"
 import Logger from "./common/logger.js"
 import quicken from "./quicken/quicken.route.js"
 
@@ -50,7 +51,8 @@ app.use("*", (req: Request, res: Response) => {
 const strategy = new DefaultMappingStrategy(
   new MapperRegistry()
     .registerMapper(new APITokenFormatErrorMapper())
-    .registerMapper(new AuthorizationErrorMapper()),
+    .registerMapper(new AuthorizationErrorMapper())
+    .registerMapper(new DbOperationErrorMapper()),
 )
 app.use(
   HttpProblemResponse({
