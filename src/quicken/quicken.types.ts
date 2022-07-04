@@ -1,4 +1,4 @@
 export interface QuickenParsedResultDTO {
-  date: Date
+  createdTimestamp: Date
   data: Record<string, string>[]
 }
