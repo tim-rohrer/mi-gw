@@ -22,7 +22,8 @@
     "test-coverage": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "int-tests": "echo 'Make sure the server is running or this will fail' && npx cypress open",
     "build:clean": "rm -rf dist/*",
-    "build": "npm run build:clean && tsc --project tsconfig.json"
+    "build": "npm run build:clean && tsc --project tsconfig.json",
+    "docs": "typedoc src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -66,6 +67,7 @@
     "prettier": "^2.7.1",
     "ts-jest": "^28.0.5",
     "ts-node": "^10.8.1",
+    "typedoc": "^0.23.8",
     "typescript": "^4.7.4"
   },
   "dependencies": {
