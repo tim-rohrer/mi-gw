@@ -1,11 +1,9 @@
-import * as dotenv from "dotenv"
 import * as MongoDB from "mongodb"
 
 import { QuickenImportModel } from "./quicken.mongodb.service"
 
 export function connectToDatabase() {
   try {
-    dotenv.config()
     const uri = process.env.MONGO_URI
     const mongoClientOptions: MongoDB.MongoClientOptions = {
       maxPoolSize: 50,

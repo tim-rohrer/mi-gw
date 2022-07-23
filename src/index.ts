@@ -1,6 +1,9 @@
-import app from "./server.js"
-import Logger from "./common/logger.js"
+import * as dotenv from "dotenv"
 
+import Logger from "./common/logger.js"
+import app from "./server.js"
+
+dotenv.config()
 const port = 5000
 
 app.listen(port, () => {
