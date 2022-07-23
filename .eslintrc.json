@@ -49,7 +49,6 @@
         "exceptAfterSingleLine": true
       }
     ],
-    "quotes": ["error", "double"],
-    "prettier/prettier": ["error"]
+    "quotes": ["error", "double"]
   }
 }
