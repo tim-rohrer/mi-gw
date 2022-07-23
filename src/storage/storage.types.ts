@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb"
 import { Result } from "ts-results-es"
 
 import DbOperationError from "../common/custom_errors/DbOperationError.js"
@@ -20,4 +21,12 @@ export interface QuickenDAO {
   addImport(arg0: Quicken): DAOActionResult<Date, DbOperationError>
   removeImport(arg0: Date): DAOActionResult<boolean, DbOperationError>
   getImport(arg0: Date): DAOActionResult<Quicken | null, DbOperationError>
+}
+
+export interface QuickenImportData {
+  data: string[]
+}
+export interface QuickenImportModel extends QuickenImportData {
+  _id?: ObjectId
+  createdTimestamp: Date
 }

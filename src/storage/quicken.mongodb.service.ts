@@ -1,14 +1,7 @@
 import * as MongoDB from "mongodb"
 
 import { quickenCollection } from "./setupMongoDbServices.js"
-
-export interface QuickenImportData {
-  data: string[]
-}
-export interface QuickenImportModel extends QuickenImportData {
-  _id?: MongoDB.ObjectId
-  createdTimestamp: Date
-}
+import { QuickenImportModel } from "./storage.types.js"
 
 export const addImport = async (resource: QuickenImportModel) =>
   quickenCollection.insertOne(resource)
