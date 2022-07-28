@@ -1,4 +1,4 @@
-describe("Quicken API", () => {
+context("Quicken API", () => {
   let apiToken =
     "nCUYlC7G0I77FaZTm0skchNswhAJIdfC0WrUNMcnlsG5G2NDe2VYcyr1EcH52bKV"
   describe("GET /quicken", () => {
@@ -23,13 +23,9 @@ describe("Quicken API", () => {
         failOnStatusCode: false,
       }).then((response) => {
         expect(response.status).to.equal(400)
-        console.log(response.body)
-        expect(response.body).to.deep.equal({
-          detail: "Your request was missing a proper API Token.",
-          status: 400,
-          title: "Malformed or missing API Token",
-          type: "/errors/api-token-format-error",
-        })
+        expect(response.body.detail).to.equal(
+          "Parameter apiToken: Invalid value.",
+        )
       })
     })
     it("should return an error if the API token is not authorized", () => {
@@ -43,6 +39,47 @@ describe("Quicken API", () => {
         },
         failOnStatusCode: false,
       }).then((response) => {
+        expect(response.status).to.equal(403)
+        expect(response.body).to.deep.equal({
+          detail:
+            "The presented API token does not permit you access to the requested service. Please request the additional authorization.",
+          status: 403,
+          title: "Forbidden",
+          type: "about:blank",
+        })
+      })
+    })
+  })
+  describe("POST /quicken-import", () => {
+    it("should add a Quicken import to the MongoDB database", () => {
+      const reqQuery = {
+        apiToken:
+          "nCUYlC7G0I77FaZTm0skchNswhAJIdfC0WrUNMcnlsG5G2NDe2VYcyr1EcH52bKV",
+        data: ["string1", "string2"],
+      }
+      cy.quickenSaveImport(reqQuery).then((response) => {
+        expect(response.status).to.equal(200)
+        expect(response.body).is.a("string")
+      })
+    })
+    it("should handle a missing apiToken or data with proper error", () => {
+      const reqQuery = {
+        data: ["string1", "string2"],
+      }
+      cy.quickenSaveImport(reqQuery).then((response) => {
+        expect(response.status).to.equal(400)
+        expect(response.body.detail).to.equal(
+          "Parameter apiToken: Invalid value.",
+        )
+      })
+    })
+    it("should handle an invalid apiToken", () => {
+      const reqQuery = {
+        apiToken:
+          "invalidG0I77FaZTm0skchNswhAJIdfC0WrUNMcnlsG5G2NDe2VYcyr1EcH52bKV",
+        data: ["string1", "string2"],
+      }
+      cy.quickenSaveImport(reqQuery).then((response) => {
         expect(response.status).to.equal(403)
         expect(response.body).to.deep.equal({
           detail:
