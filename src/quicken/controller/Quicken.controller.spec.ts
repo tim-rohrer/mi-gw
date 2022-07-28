@@ -1,55 +1,108 @@
-/** First time using @jest-mock/express. Worked great! */
-import { jest } from "@jest/globals"
-import { getMockReq, getMockRes } from "@jest-mock/express"
-import QuickenController from "./Quicken.controller.js"
-import quickenService from "../services/QuickenService"
-import { ErrImpl, OkImpl } from "ts-results-es"
 import { ParsedData } from "quicken-investment-parser/dist/QuickenInvestmentParser"
 
-const { res, next, mockClear } = getMockRes()
+import { getMockReq, getMockRes } from "@jest-mock/express"
+import { jest } from "@jest/globals"
 
-describe("Quicken Controller", () => {
-  beforeEach(() => mockClear())
+import DbOperationError from "../../common/custom_errors/DbOperationError.js"
 
-  describe("/getData", () => {
-    it("should succeed", async () => {
-      const expectedResponse: ParsedData = [
-        JSON.stringify({
-          name: "Tim",
-        }),
-      ]
-      const req = getMockReq()
-      jest
-        .spyOn(quickenService, "fetchQuickenInvestmentData")
-        .mockResolvedValue(<OkImpl<ParsedData>>{
-          ok: true,
-          err: false,
-          val: expectedResponse,
-        })
+const mockFetchQuickenInvestmentData = jest.fn()
+const mockStoreQuickenImport = jest.fn()
 
-      await QuickenController.getData(req, res, next)
+jest.unstable_mockModule("../services/quicken.service.js", () => ({
+  fetchQuickenInvestmentData: mockFetchQuickenInvestmentData,
+  storeQuickenImport: mockStoreQuickenImport,
+}))
 
-      expect(res.status).toHaveBeenCalledTimes(1)
-      expect(res.status).toHaveBeenCalledWith(200)
-      expect(res.json).toHaveBeenCalledTimes(1)
-      expect(res.json).toHaveBeenCalledWith(expectedResponse)
-    })
-    it("should handle an error from the parser", async () => {
-      const expectedResponse: Error = new Error("Something went wrong")
-      const req = getMockReq()
-      jest
-        .spyOn(quickenService, "fetchQuickenInvestmentData")
-        .mockResolvedValue(<ErrImpl<Error>>{
-          ok: false,
-          err: true,
-          val: expectedResponse,
-        })
+const quickenControllerModule = await import(
+  "../controller/quicken.controller.js"
+)
 
-      await QuickenController.getData(req, res, next)
+beforeEach(() => {
+  jest.resetAllMocks()
+})
 
-      expect(res.status).not.toHaveBeenCalled()
-      expect(next).toHaveBeenCalledTimes(1)
-      expect(next).toHaveBeenCalledWith(expectedResponse)
-    })
+test("fetchQuickenInvestmentData should succeed", async () => {
+  const expectedResponse: ParsedData = [
+    JSON.stringify({
+      name: "Tim",
+    }),
+  ]
+  mockFetchQuickenInvestmentData.mockImplementation(async () => ({
+    ok: true,
+    err: false,
+    val: expectedResponse,
+  }))
+  const req = getMockReq()
+  const { res, next } = getMockRes()
+
+  await quickenControllerModule.getData(req, res, next)
+
+  expect(res.status).toHaveBeenCalledTimes(1)
+  expect(res.status).toHaveBeenCalledWith(200)
+  expect(res.json).toHaveBeenCalledTimes(1)
+  expect(res.json).toHaveBeenCalledWith(expectedResponse)
+})
+test("fetchQuickenInvestmentData should handle an error from the parser", async () => {
+  const expectedResponse: Error = new Error("Something went wrong")
+  mockFetchQuickenInvestmentData.mockImplementation(async () => ({
+    ok: false,
+    err: true,
+    val: expectedResponse,
+  }))
+  const req = getMockReq()
+  const { res, next } = getMockRes()
+
+  await quickenControllerModule.getData(req, res, next)
+
+  expect(res.status).not.toHaveBeenCalled()
+  expect(next).toHaveBeenCalledTimes(1)
+  expect(next).toHaveBeenCalledWith(expectedResponse)
+})
+
+test("recordQuickenImport succeeds", async () => {
+  const req = getMockReq({
+    body: { data: ["string1", "string2"] },
   })
+  const { res, next } = getMockRes()
+  mockStoreQuickenImport.mockImplementation(async () => ({
+    acknowledged: true,
+    insertedId: "newObjectId",
+  }))
+
+  await quickenControllerModule.recordQuickenImport(req, res, next)
+
+  expect(res.status).toHaveBeenCalledTimes(1)
+  expect(res.status).toHaveBeenCalledWith(200)
+})
+
+test("recordQuickenImport doesn't get a write ack", async () => {
+  const expectedResponse = new DbOperationError(
+    "The database write was not acknowledged. Please investigate and try again.",
+  )
+  const req = getMockReq({
+    body: { data: ["string1", "string2"] },
+  })
+  const { res, next } = getMockRes()
+  mockStoreQuickenImport.mockImplementation(async () => ({
+    acknowledged: false,
+  }))
+
+  await quickenControllerModule.recordQuickenImport(req, res, next)
+
+  expect(res.status).not.toHaveBeenCalled()
+  expect(next).toHaveBeenCalledTimes(1)
+  expect(next).toHaveBeenCalledWith(expectedResponse)
+})
+
+test("recordQuickenImport handles unknown thrown error", async () => {
+  const req = getMockReq()
+  const { res, next } = getMockRes()
+  mockStoreQuickenImport.mockImplementation(() =>
+    Promise.reject(new Error("Unexpected error!")),
+  )
+
+  await quickenControllerModule.recordQuickenImport(req, res, next)
+
+  expect(res.status).not.toHaveBeenCalled()
+  expect(next).toHaveBeenCalledWith(new Error("Unexpected error!"))
 })

@@ -1,52 +1,45 @@
 import express from "express"
+
+import DbOperationError from "../../common/custom_errors/DbOperationError.js"
 import Logger from "../../common/logger.js"
-import quickenService from "../services/QuickenService.js"
+import { currentTimestamp } from "../../common/utils.js"
+import {
+  fetchQuickenInvestmentData,
+  storeQuickenImport,
+} from "../services/quicken.service.js"
 
-export default class QuickenController {
-  uploadCSV(): boolean {
-    throw new Error("Method not implemented.")
+export const getData = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) => {
+  const { ok, val } = await fetchQuickenInvestmentData()
+  if (ok) {
+    Logger.info(`fetch result being returned ${JSON.stringify(val)}`)
+    res.status(200).json(val)
+  } else {
+    Logger.error(`${JSON.stringify(val)}`)
+    next(val)
   }
+}
 
-  static async getData(
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
-  ): Promise<void> {
-    const { ok, val } = await quickenService.fetchQuickenInvestmentData()
-    if (ok) {
-      Logger.info(`fetch result being returned ${JSON.stringify(val)}`)
-      res.status(200).json(val)
-    } else {
-      Logger.error(`${JSON.stringify(val)}`)
-      next(val)
-    }
+export const recordQuickenImport = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) => {
+  try {
+    const { acknowledged, insertedId } = await storeQuickenImport({
+      createdTimestamp: currentTimestamp(),
+      data: req.body.data,
+    })
+    if (acknowledged) {
+      res.status(200).json(insertedId)
+    } else
+      throw new DbOperationError(
+        "The database write was not acknowledged. Please investigate and try again.",
+      )
+  } catch (error) {
+    next(error)
   }
-
-  // public static async geocode(
-  //   req: Request,
-  //   res: Response,
-  //   next: NextFunction,
-  // ): Promise<void> {
-  //   const query = req.query as unknown as GoogleGeocodeRequestParamsDTO
-  //   Logger.debug(
-  //     `geocodesService.getGoogleGeocode to be run with ${JSON.stringify(
-  //       query,
-  //     )}`,
-  //   )
-  //   const geocodeResult = await geocodesService.getGoogleGeocode(
-  //     query,
-  //     res.locals.clientInfo,
-  //   )
-  //   Logger.debug(
-  //     `geocodesService.getGoogleGeocode result ${JSON.stringify(
-  //       geocodeResult,
-  //     )}`,
-  //   )
-  //   if (geocodeResult.ok) {
-  //     Logger.info(
-  //       `Geocode result being returned ${JSON.stringify(geocodeResult.val)}`,
-  //     )
-  //     res.status(200).json(geocodeResult.val)
-  //   } else next(geocodeResult.val)
-  // }
 }

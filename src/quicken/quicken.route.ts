@@ -1,10 +1,10 @@
 import { Router } from "express"
-import { query } from "express-validator"
+import { body, query } from "express-validator"
 
 import { AuthorizationMiddleware } from "../auth/middleware/AuthorizationMiddleware.js"
-import BodyQueryValidationMiddleware from "../common/middleware/BodyQueryValidationMiddleware.js"
+import { verifyFieldsErrors } from "../common/middleware/body-query-validation.middleware.js"
 import TokenMiddleWare from "../common/middleware/TokenMiddleWare.js"
-import QuickenController from "./controller/Quicken.controller.js"
+import * as quickenController from "./controller/quicken.controller.js"
 
 const router = Router()
 
@@ -13,9 +13,20 @@ router
   .get(
     TokenMiddleWare.extractAPIToken,
     query("apiToken").isString().isLength({ min: 64, max: 64 }),
-    BodyQueryValidationMiddleware.verifyAPITokenFormat,
+    verifyFieldsErrors,
     AuthorizationMiddleware.isTokenAuthorized,
-    QuickenController.getData,
+    quickenController.getData,
+  )
+
+router
+  .route("/store-import")
+  .post(
+    TokenMiddleWare.extractAPIToken,
+    query("apiToken").isString().isLength({ min: 64, max: 64 }),
+    body("data").isArray(),
+    verifyFieldsErrors,
+    AuthorizationMiddleware.isTokenAuthorized,
+    quickenController.recordQuickenImport,
   )
 
 export default router
