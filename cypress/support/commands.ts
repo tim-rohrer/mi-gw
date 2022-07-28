@@ -23,3 +23,17 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("quickenSaveImport", (apiToken) =>
+  cy
+    .request({
+      method: "POST",
+      url: "/quicken/store-import",
+      qs: apiToken,
+      failOnStatusCode: false,
+    })
+    .then((response) => {
+      console.log(response.body)
+      return response
+    }),
+)

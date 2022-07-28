@@ -5,7 +5,7 @@
   },
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": "./",
     "sourceMap": true,
     "declaration": true,
     "preserveConstEnums": true,
@@ -19,12 +19,6 @@
     "allowJs": true,
     "useUnknownInCatchVariables": true
   },
-  "exclude": [
-    "node_modules",
-    "./**/*.spec.ts",
-    "./dist/**/*",
-    "jest.config.js",
-    "cypress.config.ts",
-    "cypress/**/*",
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "./**/*.spec.ts", "./dist/**/*", "jest.config.js"]
 }
