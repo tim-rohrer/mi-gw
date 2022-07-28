@@ -1,5 +1,5 @@
-import { HttpStatusCode } from "../http-status-codes"
-import BaseError from "./BaseError"
+import { HttpStatusCode } from "../http-status-codes.js"
+import BaseError from "./BaseError.js"
 
 export default class DbOperationError extends BaseError {
   httpCode = HttpStatusCode.INTERNAL_SERVER

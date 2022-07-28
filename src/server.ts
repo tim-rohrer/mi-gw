@@ -4,19 +4,19 @@ import express, {
   ErrorRequestHandler,
   NextFunction,
   Request,
-  Response
+  Response,
 } from "express"
 import { HttpProblemResponse } from "express-http-problem-details"
 import helmet from "helmet"
 import {
   DefaultMappingStrategy,
-  MapperRegistry
+  MapperRegistry,
 } from "http-problem-details-mapper"
 import morgan from "morgan"
 
-import APITokenFormatErrorMapper from "./common/error_mappers/APITokenFormatErrorMapper.js"
 import AuthorizationErrorMapper from "./common/error_mappers/AuthorizationErrorMapper.js"
 import DbOperationErrorMapper from "./common/error_mappers/DbOperationErrorMapper.js"
+import ReqParamFormatErrorMapper from "./common/error_mappers/ReqParamFormatErrorMapper.js"
 import Logger from "./common/logger.js"
 import quicken from "./quicken/quicken.route.js"
 
@@ -50,7 +50,7 @@ app.use("*", (req: Request, res: Response) => {
 
 const strategy = new DefaultMappingStrategy(
   new MapperRegistry()
-    .registerMapper(new APITokenFormatErrorMapper())
+    .registerMapper(new ReqParamFormatErrorMapper())
     .registerMapper(new AuthorizationErrorMapper())
     .registerMapper(new DbOperationErrorMapper()),
 )
