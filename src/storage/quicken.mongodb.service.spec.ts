@@ -2,33 +2,13 @@ import * as MongoDB from "mongodb"
 
 import { jest } from "@jest/globals"
 
-import {
-  addImport,
-  getAllImports,
-  QuickenImportModel,
-  removeImportById,
-  removeImportByTimestamp,
-  removeImportsByIdsInList,
-  removeImportsOlderThanNewest,
-} from "./quicken.mongodb.service.js"
-import { client } from "./setupMongoDbServices"
+import { mongoClient, quickenCollection } from "./mongodb-storage-service.js"
+import * as quickenStorage from "./quicken.mongodb.service.js"
+import { QuickenImportModel } from "./storage.types.js"
 
 let db: MongoDB.Db
 
-async function setupTestDatabaseConnection() {
-  try {
-    db = client.db("test")
-  } catch (error) {
-    let errorMessage = "Unknown error"
-    if (error instanceof Error) {
-      errorMessage = error.message
-    }
-    throw new Error(errorMessage)
-  }
-}
-
 async function addSpecifiedNumberOfImports(desiredQty: number) {
-  const collection = db.collection("quicken")
   const timestamps = createTimestamps(desiredQty)
   const imports = timestamps.map((timestamp) => {
     return {
@@ -36,7 +16,7 @@ async function addSpecifiedNumberOfImports(desiredQty: number) {
       data: ["string1", "string2", "string3"],
     }
   })
-  const { insertedIds } = await collection.insertMany(imports)
+  const { insertedIds } = await db.collection("quicken").insertMany(imports)
   return {
     ids: insertedIds,
     createdTimestamps: timestamps,
@@ -46,26 +26,23 @@ async function addSpecifiedNumberOfImports(desiredQty: number) {
 const createTimestamps = (numberDesired: number) =>
   Array(numberDesired)
     .fill(0)
-    .map(() => dateFromThePast(new Date(), randomNumberOneToTen()))
+    .map(() => randomDate(new Date(2022, 0o6, 0o1), new Date()))
 
-function dateFromThePast(now: Date, daysToSubtract: number) {
-  const MILLISECONDS_PER_DAY = 86400000
-  return new Date(now.getTime() - daysToSubtract * MILLISECONDS_PER_DAY)
-}
-
-function randomNumberOneToTen() {
-  return Math.floor(Math.random() * 10) + 1
+function randomDate(start, end) {
+  return new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+  )
 }
 
 async function deleteDatabaseData() {
-  await db.collection("quicken").deleteMany({})
+  await quickenCollection.deleteMany({})
 }
 
 beforeAll(async () => {
-  await setupTestDatabaseConnection()
+  db = mongoClient.db("test")
 })
 afterAll(async () => {
-  await client.close()
+  await mongoClient.close()
 })
 beforeEach(async () => {
   await deleteDatabaseData()
@@ -80,7 +57,7 @@ test("addImport handles successful import case", async () => {
     data: ["data1", "data2"],
   }
 
-  const result = await addImport(resource)
+  const result = await quickenStorage.addImport(resource)
 
   expect(result.acknowledged).toBe(true)
   expect(result.insertedId).toBeDefined()
@@ -89,7 +66,7 @@ test("addImport handles successful import case", async () => {
 test("getAllImports should list all stored Quicken Imports", async () => {
   await addSpecifiedNumberOfImports(3)
 
-  const result = await getAllImports()
+  const result = await quickenStorage.getAllImports()
 
   expect(result).toHaveLength(3)
 })
@@ -98,7 +75,9 @@ test("removeImportById should succeed", async () => {
   const addResult = await addSpecifiedNumberOfImports(3)
   const { ids } = addResult
 
-  const { acknowledged, deletedCount } = await removeImportById(ids["0"])
+  const { acknowledged, deletedCount } = await quickenStorage.removeImportById(
+    ids["0"],
+  )
 
   expect(acknowledged).toBe(true)
   expect(deletedCount).toBe(1)
@@ -107,9 +86,8 @@ test("removeImportById should succeed", async () => {
 test("removeImportByTimestamp should succeed", async () => {
   const { createdTimestamps } = await addSpecifiedNumberOfImports(3)
 
-  const { acknowledged, deletedCount } = await removeImportByTimestamp(
-    createdTimestamps[0],
-  )
+  const { acknowledged, deletedCount } =
+    await quickenStorage.removeImportByTimestamp(createdTimestamps[0])
 
   expect(acknowledged).toBe(true)
   expect(deletedCount).toBe(1)
@@ -118,9 +96,8 @@ test("removeImportByTimestamp should succeed", async () => {
 test("removeImportsByIdsInList should succeed", async () => {
   const { ids } = await addSpecifiedNumberOfImports(3)
 
-  const { acknowledged, deletedCount } = await removeImportsByIdsInList(
-    Object.values(ids),
-  )
+  const { acknowledged, deletedCount } =
+    await quickenStorage.removeImportsByIdsInList(Object.values(ids))
 
   expect(acknowledged).toBe(true)
   expect(deletedCount).toBe(3)
@@ -130,9 +107,24 @@ test("removeImportsOlderThanNewest should succeed, leaving five imports", async 
   await addSpecifiedNumberOfImports(20)
   const coll = db.collection<QuickenImportModel>("quicken")
 
-  const { acknowledged, deletedCount } = await removeImportsOlderThanNewest(5)
+  const { acknowledged, deletedCount } =
+    await quickenStorage.removeImportsOlderThanNewest(5)
 
   expect(acknowledged).toBe(true)
   expect(deletedCount).toBe(15)
   expect(await coll.find({}).toArray()).toHaveLength(5)
+})
+
+test("loadMostRecentQuickenImport should return the right document", async () => {
+  const { createdTimestamps } = await addSpecifiedNumberOfImports(3)
+  const sortedTimestamps = createdTimestamps
+    .sort((date1, date2) => date1.getTime() - date2.getTime())
+    .reverse()
+  const testResult = await db
+    .collection<QuickenImportModel>("quicken")
+    .findOne({ createdTimestamp: sortedTimestamps[0] })
+
+  const result = await quickenStorage.loadMostRecentQuickenImport()
+
+  expect(result[0]).toEqual(testResult)
 })

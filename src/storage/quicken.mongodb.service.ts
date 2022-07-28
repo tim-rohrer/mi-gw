@@ -1,6 +1,6 @@
 import * as MongoDB from "mongodb"
 
-import { quickenCollection } from "./setupMongoDbServices.js"
+import { quickenCollection } from "./mongodb-storage-service.js"
 import { QuickenImportModel } from "./storage.types.js"
 
 export const addImport = async (resource: QuickenImportModel) =>
@@ -26,8 +26,8 @@ export const removeImportsByIdsInList = async (
   idsToDelete: MongoDB.ObjectId[],
 ) => await quickenCollection.deleteMany({ _id: { $in: idsToDelete } })
 
-const getIdsOfImportsOlderThanNewest = async (number: number) => {
-  const agg = [
+const getIdsOfImportsOlderThanNewest = async (number: number) =>
+  loadDocumentsUsingAggregationPipeline([
     {
       $sort: {
         createdTimestamp: -1,
@@ -41,6 +41,22 @@ const getIdsOfImportsOlderThanNewest = async (number: number) => {
         _id: 1,
       },
     },
-  ]
-  return await quickenCollection.aggregate(agg).toArray()
-}
+  ])
+
+const loadDocumentsUsingAggregationPipeline = (pipeline: MongoDB.Document[]) =>
+  performAggregationUsingPipeline(pipeline).toArray()
+
+const performAggregationUsingPipeline = (pipeline: MongoDB.Document[]) =>
+  quickenCollection.aggregate(pipeline)
+
+export const loadMostRecentQuickenImport = () =>
+  loadDocumentsUsingAggregationPipeline([
+    {
+      $sort: {
+        createdTimestamp: -1,
+      },
+    },
+    {
+      $limit: 1,
+    },
+  ])
