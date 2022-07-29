@@ -49,7 +49,7 @@ const loadDocumentsUsingAggregationPipeline = (pipeline: MongoDB.Document[]) =>
 const performAggregationUsingPipeline = (pipeline: MongoDB.Document[]) =>
   quickenCollection.aggregate(pipeline)
 
-export const loadMostRecentQuickenImport = () =>
+export const loadMostRecentImport = () =>
   loadDocumentsUsingAggregationPipeline([
     {
       $sort: {

@@ -124,7 +124,7 @@ test("loadMostRecentQuickenImport should return the right document", async () =>
     .collection<QuickenImportModel>("quicken")
     .findOne({ createdTimestamp: sortedTimestamps[0] })
 
-  const result = await quickenStorage.loadMostRecentQuickenImport()
+  const result = await quickenStorage.loadMostRecentImport()
 
   expect(result[0]).toEqual(testResult)
 })
