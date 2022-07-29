@@ -5,6 +5,7 @@ import Logger from "../../common/logger.js"
 import { currentTimestamp } from "../../common/utils.js"
 import {
   fetchQuickenInvestmentData,
+  getMostRecentImport,
   storeQuickenImport,
 } from "../services/quicken.service.js"
 
@@ -38,6 +39,24 @@ export const recordQuickenImport = async (
     } else
       throw new DbOperationError(
         "The database write was not acknowledged. Please investigate and try again.",
+      )
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const provideMostRecentQuickenImport = async (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction,
+) => {
+  try {
+    const result = await getMostRecentImport()
+    if (result) {
+      res.status(200).json(result)
+    } else
+      throw new DbOperationError(
+        "The database read encountered a problem. Please investigate and try again.",
       )
   } catch (error) {
     next(error)

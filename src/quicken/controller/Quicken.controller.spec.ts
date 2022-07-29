@@ -7,10 +7,12 @@ import DbOperationError from "../../common/custom_errors/DbOperationError.js"
 
 const mockFetchQuickenInvestmentData = jest.fn()
 const mockStoreQuickenImport = jest.fn()
+const mockGetMostRecentImport = jest.fn()
 
 jest.unstable_mockModule("../services/quicken.service.js", () => ({
   fetchQuickenInvestmentData: mockFetchQuickenInvestmentData,
   storeQuickenImport: mockStoreQuickenImport,
+  getMostRecentImport: mockGetMostRecentImport,
 }))
 
 const quickenControllerModule = await import(
@@ -105,4 +107,36 @@ test("recordQuickenImport handles unknown thrown error", async () => {
 
   expect(res.status).not.toHaveBeenCalled()
   expect(next).toHaveBeenCalledWith(new Error("Unexpected error!"))
+})
+
+test("provideMostRecentQuickenImport succeeds", async () => {
+  const req = getMockReq()
+  const { res, next } = getMockRes()
+
+  mockGetMostRecentImport.mockImplementation(async () => ({
+    createdTimestamp: new Date(),
+    data: ["string1", "string2"],
+  }))
+
+  await quickenControllerModule.provideMostRecentQuickenImport(req, res, next)
+
+  expect(res.status).toHaveBeenCalledTimes(1)
+  expect(res.status).toHaveBeenCalledWith(200)
+})
+
+test("provideMostRecentQuickenImport handles thrown error", async () => {
+  const expectedResponse: Error = new Error("Something went wrong")
+
+  const req = getMockReq()
+  const { res, next } = getMockRes()
+
+  mockGetMostRecentImport.mockImplementation(async () =>
+    Promise.reject(new Error("Something went wrong")),
+  )
+
+  await quickenControllerModule.provideMostRecentQuickenImport(req, res, next)
+
+  expect(res.status).not.toHaveBeenCalled()
+  expect(next).toHaveBeenCalledTimes(1)
+  expect(next).toHaveBeenCalledWith(expectedResponse)
 })
