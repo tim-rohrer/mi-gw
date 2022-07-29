@@ -4,7 +4,7 @@ import { body, query } from "express-validator"
 import { AuthorizationMiddleware } from "../auth/middleware/AuthorizationMiddleware.js"
 import { verifyFieldsErrors } from "../common/middleware/body-query-validation.middleware.js"
 import TokenMiddleWare from "../common/middleware/TokenMiddleWare.js"
-import * as quickenController from "./controller/quicken.controller.js"
+import * as quickenController from "./quicken.controller.js"
 
 const router = Router()
 

@@ -3,7 +3,7 @@ import { ParsedData } from "quicken-investment-parser/dist/QuickenInvestmentPars
 import { getMockReq, getMockRes } from "@jest-mock/express"
 import { jest } from "@jest/globals"
 
-import DbOperationError from "../../common/custom_errors/DbOperationError.js"
+import DbOperationError from "../common/custom_errors/DbOperationError.js"
 
 const mockFetchQuickenInvestmentData = jest.fn()
 const mockStoreQuickenImport = jest.fn()
@@ -15,9 +15,7 @@ jest.unstable_mockModule("../services/quicken.service.js", () => ({
   getMostRecentImport: mockGetMostRecentImport,
 }))
 
-const quickenControllerModule = await import(
-  "../controller/quicken.controller.js"
-)
+const quickenControllerModule = await import("./quicken.controller.js")
 
 beforeEach(() => {
   jest.resetAllMocks()
