@@ -4,8 +4,6 @@ import { ErrImpl, OkImpl } from "ts-results-es"
 
 import { jest } from "@jest/globals"
 
-import { fetchQuickenInvestmentData } from "./quicken.service.js"
-
 const mockAddImport = jest.fn()
 
 jest.unstable_mockModule("../../storage/quicken.mongodb.service.js", () => ({
@@ -28,7 +26,7 @@ test("fetchQuickenInvestmentData should return an array", async () => {
       val: mockVal,
     })
 
-  const { ok, val } = await fetchQuickenInvestmentData()
+  const { ok, val } = await quickenServiceModule.fetchQuickenInvestmentData()
 
   expect(ok).toBe(true)
   expect(val).toBeInstanceOf(Array)
@@ -42,7 +40,7 @@ test("fetchQuickenInvestmentData should handle an error from the parser", async 
       val: new Error("fail"),
     })
 
-  const { err, val } = await fetchQuickenInvestmentData()
+  const { err, val } = await quickenServiceModule.fetchQuickenInvestmentData()
 
   expect(err).toBe(true)
   expect(val).toBeInstanceOf(Error)
@@ -60,4 +58,5 @@ test("storeQuickenImport invokes the store", async () => {
   const result = await quickenServiceModule.storeQuickenImport(importData)
 
   expect(result.acknowledged).toBe(true)
+  expect(result.insertedId).toBe("testObjectId")
 })

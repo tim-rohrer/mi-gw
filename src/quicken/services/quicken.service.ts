@@ -19,3 +19,6 @@ export const fetchQuickenInvestmentData = async () => {
 
 export const storeQuickenImport = async (importRecord: QuickenImportModel) =>
   await quickenStore.addImport(importRecord)
+
+export const getMostRecentImport = async () =>
+  await quickenStore.loadMostRecentImport()
