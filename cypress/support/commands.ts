@@ -24,6 +24,15 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
+Cypress.Commands.add("database", (operation, actionData) =>
+  cy
+    .task(`${operation}:database`, {
+      url: "mongodb://root:example@localhost:27017",
+      actionData,
+    })
+    .then((data) => data),
+)
+
 Cypress.Commands.add("quickenSaveImport", (apiToken) =>
   cy
     .request({
@@ -32,8 +41,16 @@ Cypress.Commands.add("quickenSaveImport", (apiToken) =>
       qs: apiToken,
       failOnStatusCode: false,
     })
-    .then((response) => {
-      console.log(response.body)
-      return response
-    }),
+    .then((response) => response),
+)
+
+Cypress.Commands.add("quickenMostRecentImport", (apiToken) =>
+  cy
+    .request({
+      method: "GET",
+      url: "/quicken/most-recent-import",
+      qs: apiToken,
+      failOnStatusCode: false,
+    })
+    .then((response) => response),
 )

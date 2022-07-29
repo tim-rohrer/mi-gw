@@ -91,4 +91,26 @@ context("Quicken API", () => {
       })
     })
   })
+  describe("/GET most-recent-import", () => {
+    let mostRecentTimestamp: Date
+    beforeEach(() => {
+      cy.database("reset").then(() =>
+        cy
+          .database("seedImports", {
+            desiredNumberOfImportRecords: 5,
+          })
+          .then((data) => (mostRecentTimestamp = data)),
+      )
+    })
+    it("should return the most recent of the imports", () => {
+      const reqQuery = {
+        apiToken:
+          "nCUYlC7G0I77FaZTm0skchNswhAJIdfC0WrUNMcnlsG5G2NDe2VYcyr1EcH52bKV",
+      }
+      cy.quickenMostRecentImport(reqQuery).then((response) => {
+        expect(response.status).to.equal(200)
+        expect(response.body[0].createdTimestamp).to.equal(mostRecentTimestamp)
+      })
+    })
+  })
 })

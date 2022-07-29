@@ -29,4 +29,14 @@ router
     quickenController.recordQuickenImport,
   )
 
+router
+  .route("/most-recent-import")
+  .get(
+    TokenMiddleWare.extractAPIToken,
+    query("apiToken").isString().isLength({ min: 64, max: 64 }),
+    verifyFieldsErrors,
+    AuthorizationMiddleware.isTokenAuthorized,
+    quickenController.provideMostRecentQuickenImport,
+  )
+
 export default router
