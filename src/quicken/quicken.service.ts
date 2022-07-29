@@ -1,9 +1,9 @@
 import QuickenInvestmentParser from "quicken-investment-parser"
 import { Err, Ok } from "ts-results-es"
 
-import Logger from "../../common/logger.js"
-import * as quickenStore from "../../storage/quicken.mongodb.service.js"
-import { QuickenImportModel } from "../../storage/storage.types.js"
+import Logger from "../common/logger.js"
+import * as quickenStore from "../storage/quicken.mongodb.service.js"
+import { QuickenImportModel } from "../storage/storage.types.js"
 
 export const fetchQuickenInvestmentData = async () => {
   const qp = new QuickenInvestmentParser("export.csv")

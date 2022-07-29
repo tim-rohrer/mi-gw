@@ -1,13 +1,13 @@
 import express from "express"
 
-import DbOperationError from "../../common/custom_errors/DbOperationError.js"
-import Logger from "../../common/logger.js"
-import { currentTimestamp } from "../../common/utils.js"
+import DbOperationError from "../common/custom_errors/DbOperationError.js"
+import Logger from "../common/logger.js"
+import { currentTimestamp } from "../common/utils.js"
 import {
   fetchQuickenInvestmentData,
   getMostRecentImport,
   storeQuickenImport,
-} from "../services/quicken.service.js"
+} from "./quicken.service.js"
 
 export const getData = async (
   req: express.Request,

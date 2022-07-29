@@ -6,7 +6,7 @@ import { jest } from "@jest/globals"
 
 const mockAddImport = jest.fn()
 
-jest.unstable_mockModule("../../storage/quicken.mongodb.service.js", () => ({
+jest.unstable_mockModule("../storage/quicken.mongodb.service.js", () => ({
   addImport: mockAddImport,
 }))
 

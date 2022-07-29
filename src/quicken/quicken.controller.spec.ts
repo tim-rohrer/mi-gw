@@ -9,7 +9,7 @@ const mockFetchQuickenInvestmentData = jest.fn()
 const mockStoreQuickenImport = jest.fn()
 const mockGetMostRecentImport = jest.fn()
 
-jest.unstable_mockModule("../services/quicken.service.js", () => ({
+jest.unstable_mockModule("./quicken.service.js", () => ({
   fetchQuickenInvestmentData: mockFetchQuickenInvestmentData,
   storeQuickenImport: mockStoreQuickenImport,
   getMostRecentImport: mockGetMostRecentImport,
